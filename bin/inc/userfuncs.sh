@@ -8,6 +8,8 @@ declare -a _libs=()
 declare -a _algorithms=()
 declare -a _ks=()
 declare -a _seeds=()
+declare -a _ps=()
+declare -a _qs=()
 declare -a _graphs=()
 declare -a _epsilons=()
 declare -a _nodes_x_mpis_x_threads=()
@@ -204,6 +206,20 @@ Ks() {
     _ks+=(${@})
 }
 
+# Specify p value for node2vec. Can provide multiple values.
+#
+# Ps <p...>
+Ps() {
+	_ps+=(${@})
+}
+
+# Specify q value for node2vec. Can provide multiple values.
+#
+# Qs <q...>
+Qs() {
+	_qs+=(${@})
+}
+
 # If set, scale K with the number of compute nodes.
 #
 # ScaleKs
@@ -316,5 +332,7 @@ PrintSummary() {
 
     echo "Seeds: ${_seeds[*]}"
     echo "Ks: ${_ks[*]}"
+	echo "Ps: ${_ps[*]}"
+	echo "Qs: ${_qs[*]}"
 }
 

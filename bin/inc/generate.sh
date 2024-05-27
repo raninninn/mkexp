@@ -5,12 +5,12 @@ GenerateJobfileName() {
 
 GenerateInvocIdentifier() {
     local -n args=$1
-    echo "$(basename "${args[graph]}")___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}"
+    echo "$(basename "${args[graph]}")___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}_n2vp${args[p]}_n2vq${args[q]}"
 }
 
 GenerateKaGenIdentifier() {
     local -n args=$1
-    echo "${args[kagen_stringified]}___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}"
+    echo "${args[kagen_stringified]}___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}_n2vp${args[n2vp]}_n2vq${args[n2vq]}"
 }
 
 ReportPartitionerVersion() {
@@ -108,6 +108,8 @@ GenerateAlgorithmArguments() {
         K="${args[k]}" \
         Epsilon="${args[epsilon]}" \
         Seed="${args[seed]}" \
+		n2vp="${args[p]}" \
+		n2vq="${args[q]}" \
         N="${num_nodes}" \
         M="${num_mpis}" \
         T="${num_threads}" \
@@ -222,10 +224,16 @@ Generate() {
                             k=$((k*nodes)) 
                         fi
                         invoc[k]=$k
+						for p in ${_ps[@]}; do
+							invoc[p]=$p
+							for q in ${_qs[@]}; do
+								invoc[q]=$q
 
-                        GenerateInvokationForEveryGraph invoc 
-                        invoc[first_algorithm_call]=0
-                        invoc[first_parallelism_call]=0
+								GenerateInvokationForEveryGraph invoc 
+								invoc[first_algorithm_call]=0
+								invoc[first_parallelism_call]=0
+							done # q
+						done # p
                     done # k
                 done # epsilon
             done # seed

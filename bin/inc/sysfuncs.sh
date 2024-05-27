@@ -91,6 +91,8 @@ ResetExperiment() {
     _libs=()
     _ks=()
     _seeds=()
+	_ps=()
+	_qs=()
     _graphs=()
     _epsilons=()
     _nodes_x_mpis_x_threads=()
