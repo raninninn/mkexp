@@ -26,7 +26,7 @@ load_script("performance_profile_plot.R")
 load_script("running_time_box_plot.R")
 
 # Load statistics of known graphs
-graphs_db <- read.csv(file.path(script.basename, "../data/graphs.csv"), header = TRUE, sep = ",") |> dplyr::distinct()
+graphs_db <- read.csv(file.path(script.basename, "../data/clustering_dimacs10.csv"), header = TRUE, sep = ",") |> dplyr::distinct()
 
 # Create directory for the plots
 if (!dir.exists("plots")) {
