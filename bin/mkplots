@@ -449,3 +449,50 @@ if ("--graph-stats" %in% plots) {
   cat("#regular graphs:", nrow(regular), "\n")
   cat("#irregular graphs:", nrow(irregular), "\n")
 }
+
+if ("--cuts-per-pq" %in% plots) {
+  relative_to <- data[[1]]
+  normalized <- data.frame()
+  for (df in data) {
+    df$RelAvgTime <- df$AvgTime / relative_to$AvgTime
+    df$RelAvgCut <- df$AvgCut / relative_to$AvgCut
+    df$node2vec.p <- as.factor(df$node2vec.p)
+    df$node2vec.q <- as.factor(df$node2vec.q)
+    normalized <- rbind(normalized, df)
+  }
+
+  normalized <- normalized %>%
+    dplyr::mutate(K = factor(K)) %>%
+    dplyr::mutate(Title = paste0(Graph, " (", MaxDeg, ")")) %>%
+    dplyr::mutate(MaxDegToM = MaxDeg / M)
+
+  normalized$Title <- factor(
+    normalized$Title,
+    levels = unique(normalized$Title[order(normalized$MaxDeg, decreasing = TRUE)])
+  )
+  
+  normalized <- normalized %>% dplyr::filter(Invalid == FALSE)
+  print(normalized)
+  mkpdf("per_pq_cut")
+  for (graph in common_graphs) {
+    for (k in common_ks) {
+      dataseg <- normalized %>% dplyr::filter(Graph == graph & K == k)
+      edgew <- dataseg$M[1]
+      print(dataseg$M)
+      if (graph == "lesmis") {
+        edgew <- 1640
+      } else if (graph == "celegansneural") {
+        edgew <- 17638
+      }
+      plot <- ggplot(dataseg, aes(node2vec.p, node2vec.q, fill = AvgCut)) +
+        geom_tile() +
+        theme_bw() +
+        labs(
+          title = paste0("Edge Cuts for ", graph, ", k: ", k),
+          subtitle = paste0("Total edge weight ", edgew)
+        )
+      print(plot)
+    }
+  }
+  dev.off()
+} 
