@@ -10,7 +10,7 @@ GenerateInvocIdentifier() {
 
 GenerateKaGenIdentifier() {
     local -n args=$1
-    echo "${args[kagen_stringified]}___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}_n2vp${args[n2vp]}_n2vq${args[n2vq]}"
+    echo "${args[kagen_stringified]}___P${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}_seed${args[seed]}_eps${args[epsilon]}_k${args[k]}_n2vp${args[p]}_n2vq${args[q]}"
 }
 
 ReportPartitionerVersion() {
@@ -101,6 +101,12 @@ GenerateAlgorithmArguments() {
     graph_basename="$(basename "${args[graph]}")"
     graph_basename="${graph_basename%%.*}"
 
+	local embed_file="misc\/${graph_basename}_seed${args[seed]}_n2vp${args[p]}_n2vq${args[q]}_${num_nodes}x${num_mpis}x${num_threads}\.embed"
+
+	local sedstring="s/--c-dump-embedding/--c-dump-embedding --c-embedding-path ${embed_file}/"
+	echo $sedstring > out.txt
+	plain_arguments="$(echo $plain_arguments | sed -- "${sedstring}")"
+
     echo "$plain_arguments" | \
         ROOT="$PWD" \
         Graph="${args[graph]}" \
@@ -114,6 +120,7 @@ GenerateAlgorithmArguments() {
         M="${num_mpis}" \
         T="${num_threads}" \
         P="${num_pes}" \
+		Embedding="${embed_file}" \
         envsubst
 }
 
