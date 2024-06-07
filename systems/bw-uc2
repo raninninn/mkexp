@@ -1,0 +1,44 @@
+#!/bin/bash
+. "$script_pwd/../systems/Generic"
+
+# bwuni cluster 2 without OpenMP: a blatant rip-off of HoreKa-TBB
+
+SetupBuildEnv() {
+	module load devel/tbb
+	return
+}
+
+UploadExperiment() {
+	echo "Error: unsupported"
+}
+
+DownloadExperiment() {
+	echo "Error: unsupported"
+}
+
+GenerateJobfileHeader() {
+	local -n args=$1
+
+	>&2 echo -e "Generating jobfile header for parallel execution mode $ARGS_COLOR${args[num_nodes]}x${args[num_mpis]}x${args[num_threads]}$NO_COLOR:"
+	echo "#!/bin/bash"
+	echo "#SBATCH --nodes=${args[num_nodes]}"
+	echo "#SBATCH --cpus-per-task=${args[num_threads]}"
+	echo "#SBATCH --ntasks-per-node=${args[num_mpis]}"
+	echo "#SBATCH --time=${args[timelimit]}"
+	echo "#SBATCH --export=ALL"
+	echo "#SBATCH --mem=20gb"
+	echo "#SBATCH --partition=single"
+
+	>&2 echo "Unsetting OpenMP environment variables OMP_*"
+	echo "unset OMP_NUM_THREADS"
+	echo "unset OMP_PROC_BIND"
+	echo "unset OMP_PLACES"
+
+	>&2 echo ""
+}
+
+GenerateJobfileSubmission() {
+	for jobfile in ${@}; do
+		echo "sbatch $jobfile"
+	done
+}
